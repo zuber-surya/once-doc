@@ -1,0 +1,72 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+    // ===============================================================
+    // Assumed Data Model
+    // ===============================================================
+    //
+    // Collection: docs
+    // Document ID: docId
+    // Fields:
+    //   - id: string (required) - The unique identifier for the section.
+    //   - title: string (required) - The title of the section.
+    //   - content: string (required) - The HTML content of the section.
+    //   - subsections: array (optional) - A list of nested subsections.
+    //
+    // Collection: apis
+    // Document ID: moduleId
+    // Fields:
+    //   - id: string (required) - The unique identifier for the module.
+    //   - name: string (required) - The name of the module.
+    //   - endpoints: array (required) - A list of endpoints in this module.
+    //
+    // Collection: terms
+    // Document ID: termId
+    // Fields:
+    //   - term: string (required) - The term being defined.
+    //   - definition: string (required) - The definition of the term.
+    //   - category: string (required) - The category the term belongs to.
+    //
+    // ===============================================================
+
+    // ===============================================================
+    // Helper Functions
+    // ===============================================================
+    
+    function isAuthenticated() {
+      return request.auth != null;
+    }
+
+    function isAdmin() {
+      return isAuthenticated() && 
+        (request.auth.token.email == "zuber.s@crestinfosystems.com");
+    }
+
+    function hasRequiredFields(fields) {
+      return request.resource.data.keys().hasAll(fields);
+    }
+
+    function hasOnlyAllowedFields(fields) {
+      return request.resource.data.keys().hasOnly(fields);
+    }
+
+    // ===============================================================
+    // Rules
+    // ===============================================================
+
+    match /docs/{docId} {
+      allow read: if true;
+      allow write: if isAdmin();
+    }
+
+    match /apis/{moduleId} {
+      allow read: if true;
+      allow write: if isAdmin();
+    }
+
+    match /terms/{termId} {
+      allow read: if true;
+      allow write: if isAdmin();
+    }
+  }
+}

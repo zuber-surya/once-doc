@@ -1,0 +1,106 @@
+{
+  "entities": {
+    "DocSection": {
+      "title": "Documentation Section",
+      "description": "A section of documentation, which can contain subsections.",
+      "type": "object",
+      "properties": {
+        "id": { "type": "string", "description": "The unique identifier for the section." },
+        "title": { "type": "string", "description": "The title of the section." },
+        "content": { "type": "string", "description": "The HTML content of the section." },
+        "subsections": {
+          "type": "array",
+          "items": { "$ref": "DocSection" },
+          "description": "A list of nested subsections."
+        }
+      },
+      "required": ["id", "title", "content"]
+    },
+    "ApiModule": {
+      "title": "API Module",
+      "description": "A module containing a group of API endpoints.",
+      "type": "object",
+      "properties": {
+        "id": { "type": "string", "description": "The unique identifier for the module." },
+        "name": { "type": "string", "description": "The name of the module." },
+        "endpoints": {
+          "type": "array",
+          "items": { "$ref": "ApiEndpoint" },
+          "description": "A list of endpoints in this module."
+        }
+      },
+      "required": ["id", "name", "endpoints"]
+    },
+    "ApiEndpoint": {
+      "title": "API Endpoint",
+      "description": "A single API endpoint definition.",
+      "type": "object",
+      "properties": {
+        "id": { "type": "string", "description": "The unique identifier for the endpoint." },
+        "method": { "type": "string", "enum": ["GET", "POST", "PUT", "DELETE", "PATCH"], "description": "The HTTP method." },
+        "path": { "type": "string", "description": "The endpoint path." },
+        "name": { "type": "string", "description": "The display name of the endpoint." },
+        "description": { "type": "string", "description": "A brief description of the endpoint." },
+        "parameters": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "properties": {
+              "name": { "type": "string" },
+              "type": { "type": "string" },
+              "required": { "type": "boolean" },
+              "description": { "type": "string" },
+              "in": { "type": "string", "enum": ["query", "path", "header"] }
+            }
+          }
+        },
+        "requestBody": {
+          "type": "object",
+          "properties": {
+            "type": { "type": "string", "enum": ["json", "form-data"] },
+            "example": { "type": "object" },
+            "schema": { "type": "object" }
+          }
+        },
+        "responses": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "properties": {
+              "code": { "type": "integer" },
+              "description": { "type": "string" },
+              "example": { "type": "object" },
+              "schema": { "type": "object" }
+            }
+          }
+        }
+      },
+      "required": ["id", "method", "path", "name", "description"]
+    },
+    "GlossaryItem": {
+      "title": "Glossary Item",
+      "description": "A term and its definition in the glossary.",
+      "type": "object",
+      "properties": {
+        "term": { "type": "string", "description": "The term being defined." },
+        "definition": { "type": "string", "description": "The definition of the term." },
+        "category": { "type": "string", "description": "The category the term belongs to." }
+      },
+      "required": ["term", "definition", "category"]
+    }
+  },
+  "firestore": {
+    "/docs/{docId}": {
+      "schema": "DocSection",
+      "description": "Collection of top-level documentation sections."
+    },
+    "/apis/{moduleId}": {
+      "schema": "ApiModule",
+      "description": "Collection of API modules."
+    },
+    "/terms/{termId}": {
+      "schema": "GlossaryItem",
+      "description": "Collection of glossary terms."
+    }
+  }
+}
